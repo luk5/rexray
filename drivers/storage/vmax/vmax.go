@@ -24,17 +24,11 @@ const jobTimeout = 30
 // The VMAX storage driver.
 type driver struct {
     client *govmax.SMIS
-    // initiator        xtio.Initiator
-    // volumesSig       string
-    // lunMapsSig       string
-    // initiatorsSig    string
-    // volumesByNaa     map[string]xtio.Volume
-    // initiatorsByName map[string]xtio.Initiator
     arrayID    string
     volPrefix  string
     instanceID string
     vmh        *govmax.VMHost
-    bmh        string
+    bmh        *govmax.HostAdapter
     r          *core.RexRay
 }
 
@@ -117,7 +111,7 @@ func (d *driver) Init(r *core.RexRay) error {
         d.instanceID = d.vmh.Vm.Reference().Value
     )
     else(
-        d.instanceID = //insert
+        d.instanceID = d.bmh.
     )
 
     log.WithField("provider", providerName).Info("storage driver initialized")
@@ -772,6 +766,10 @@ func (d *driver) storageGroup() string {
     return d.r.Config.GetString("vmax.storageGroup")
 }
 
+func (d *driver) bmh() string {
+    return d.r.Config.GetString("vmax.bmh")
+}
+
 func configRegistration() *gofig.Registration {
     r := gofig.NewRegistration("GOVMAX")
     r.Key(gofig.String, "", "", "", "vmax.smishost")
@@ -786,6 +784,7 @@ func configRegistration() *gofig.Registration {
     r.Key(gofig.String, "", "", "", "vmax.vmh.userName")
     r.Key(gofig.String, "", "", "", "vmax.vmh.password")
     r.Key(gofig.String, "", "", "", "vmax.vmh.host")
+    r.Key(gofig.String, "", "", "", "vmax.bmh")
 
     return r
 }
